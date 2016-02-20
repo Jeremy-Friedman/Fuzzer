@@ -2,7 +2,8 @@ SWEN-331 Fuzzer -- Release 1 (Discover)
 
 Pre-requisites:
 1) Python 3.4.3 
-2) "requests" package installed. If not installed, run "pip install requests" from a terminal (see: http://docs.python-requests.org/en/master/user/install/#install)
+2) Requests package. "pip install requests" to install. (documentation: http://docs.python-requests.org/en/master/user/install/#install)
+3) BeautifulSoup package. "pip install beautifulsoup" to install. (documentation: http://www.crummy.com/software/BeautifulSoup/bs4/doc/)
 
 How to run:
 1) Open command prompt
