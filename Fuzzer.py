@@ -68,7 +68,23 @@ def authenticate(authTo, session):
         session.put("http://127.0.0.1/dvwa/login.php", data = {"username" : "admin", "password" : "password"})
     elif (authTo == "bodgeit"):
         pass
-    
+"""
+Returns all url inputs discovered
+"""
+def parseURL(url):
+    plainUrl, inputs = url.split("?", 1)
+    inputs = inputs.split("&")
+    discoveredInputs = list()
+    for field in inputs:
+        fieldName = field.split("=")[0]
+        discoveredInputs.append(fieldName)
+
+    print("BASE URL: " + plainUrl)
+    return discoveredInputs
+
+"""
+Returns discovered cookies
+"""
 
 def fuzz(userArgs):
     #validate input, init vars
@@ -92,6 +108,7 @@ def fuzz(userArgs):
         guessedPages = guessPages(url, commonWords, session)
         print("GUESSED PAGES: " + str(guessedPages) + "\n")
         print("DISCOVERED LINKS: " + str(discoverLinks(url, session)))
+        print("DISCOVERED URL INPUTS" + str(parseURL(url)))
     
     elif (userArgs[2] == "test"):
         pass #do test stuff
