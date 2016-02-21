@@ -72,8 +72,12 @@ def authenticate(authTo, session):
 Returns all url inputs discovered
 """
 def parseURL(url):
-    plainUrl, inputs = url.split("?", 1)
-    inputs = inputs.split("&")
+    try:
+        plainUrl, inputs = url.split("?", 1)
+        inputs = inputs.split("&")
+    except ValueError:
+        print("BASE URL: " + url)
+        return []
     discoveredInputs = list()
     for field in inputs:
         fieldName = field.split("=")[0]
@@ -85,6 +89,16 @@ def parseURL(url):
 """
 Returns discovered cookies
 """
+
+def getCookies(session):
+    cookies = session.cookies.get_dict()
+    print("SESSION COOKIES:")
+    for cookieKey in cookies.keys():
+        print(cookieKey + "= " + cookies[cookieKey])
+
+    return cookies
+
+
 
 def fuzz(userArgs):
     #validate input, init vars
@@ -98,8 +112,7 @@ def fuzz(userArgs):
             url = userArgs[-3]
             
     #session used in entire fuzzer        
-    session = requests.session()      
-
+    session = requests.session()
     #discover
     guessedPages = []
     if (userArgs[2] == "discover"):
@@ -109,6 +122,7 @@ def fuzz(userArgs):
         print("GUESSED PAGES: " + str(guessedPages) + "\n")
         print("DISCOVERED LINKS: " + str(discoverLinks(url, session)))
         print("DISCOVERED URL INPUTS" + str(parseURL(url)))
+        getCookies(session)
     
     elif (userArgs[2] == "test"):
         pass #do test stuff
