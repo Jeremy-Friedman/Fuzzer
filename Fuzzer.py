@@ -87,17 +87,32 @@ def parseURL(url):
     return discoveredInputs
 
 """
-Returns discovered cookies
+Returns cookies from the current session
 """
 
 def getCookies(session):
     cookies = session.cookies.get_dict()
     print("SESSION COOKIES:")
     for cookieKey in cookies.keys():
-        print(cookieKey + "= " + cookies[cookieKey])
+        print(cookieKey + " = " + cookies[cookieKey])
 
     return cookies
 
+"""
+Returns discoved form inputs
+"""
+
+def getFormInputs(session, url):
+    foundInputs = list()
+    html = session.get(url).text
+    soup = bs4.BeautifulSoup(html, "html.parser", parse_only = bs4.SoupStrainer('input'))
+    inputLines = soup.prettify()
+    for line in inputLines.splitlines(keepends=False):
+        curLine = line.strip()
+        if curLine.startswith("<input"):
+            foundInputs.append(curLine)
+
+    return foundInputs
 
 
 def fuzz(userArgs):
@@ -123,7 +138,10 @@ def fuzz(userArgs):
         print("DISCOVERED LINKS: " + str(discoverLinks(url, session)))
         print("DISCOVERED URL INPUTS" + str(parseURL(url)))
         getCookies(session)
-    
+        print("DISCOVERED FORM INPUTS:")
+        for inputTag in getFormInputs(session, url):
+            print(inputTag)
+
     elif (userArgs[2] == "test"):
         pass #do test stuff
         
