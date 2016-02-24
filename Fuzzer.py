@@ -45,7 +45,7 @@ Returns a requests.Response object.
 def authenticate(authTo, session):
     #hard-coded
     if (authTo == "dvwa"):
-        session.post("http://127.0.0.1/dvwa/login.php", data = {"username" : "admin", "password" : "password"})
+        session.post("http://127.0.0.1/dvwa/login.php", data = {"username" : "admin", "password" : "password", "Login" : "Login"})
     elif (authTo == "bodgeit"):
         session.post("http://127.0.0.1:8080/bodgeit/login.jsp", data={'username': 'admin@thebodgeitstore.com', 'password': 'password'})
     
