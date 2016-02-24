@@ -9,42 +9,22 @@ Aaron Stadler
 """
 
 """
-Partial validation. 
-@args userArgs -- user input
-@return: number of inputs. 0 if invalid
-"""
-def validateInput(userArgs):
-    try:
-        fuzzArg = userArgs[1] == "fuzz"
-        fuzzMode = userArgs[2] == "discover"
-        url = userArgs[3] 
-        customAuth = False
-        commonWords = False
-        if len(userArgs) == 5:
-            commonWords = "--common-words=" in userArgs[4]
-            return (len(userArgs))
-        elif len(userArgs) == 6:
-            customAuth = "--custom-auth=" in userArgs[4]
-            commonWords = "--common-words=" in userArgs[5]
-            return (len(userArgs))
-    except IndexError:
-        print("***Invalid args*** \nUsage: fuzz discover <url> [--custom-auth=<string>] --common-words=<filename>")
-        return 0
-
-"""
 Uses the common words file to guess all pages that can be reached
 from the given url. 
 """
 def guessPages(url, commonWords, session):
     pages = []
     extensions = ["", ".php", ".jsp"]
+    #result = ""
+    print("FAILED PAGE GUESSES: \n------------------------------")
     for word in open(commonWords):
         for extension in extensions:
             page = url + "/" + word.strip("\n") + extension
             request = session.get(page)
             if (request.status_code == requests.codes.ok):
                 pages.append(page)
-            print("PAGE GUESSED -->  " + page + "\tSTATUS CODE --> " + str(request.status_code))
+            else:
+                print(page)
     return pages
 
 """
@@ -65,9 +45,10 @@ Returns a requests.Response object.
 def authenticate(authTo, session):
     #hard-coded
     if (authTo == "dvwa"):
-        session.put("http://127.0.0.1/dvwa/login.php", data = {"username" : "admin", "password" : "password"})
+        session.post("http://127.0.0.1/dvwa/login.php", data = {"username" : "admin", "password" : "password"})
     elif (authTo == "bodgeit"):
-        pass
+        session.post("http://127.0.0.1:8080/bodgeit/login.jsp", data={'username': 'admin@thebodgeitstore.com', 'password': 'password'})
+    
 """
 Returns all url inputs discovered
 """
@@ -89,19 +70,16 @@ def parseURL(url):
 """
 Returns cookies from the current session
 """
-
 def getCookies(session):
     cookies = session.cookies.get_dict()
-    print("SESSION COOKIES:")
     for cookieKey in cookies.keys():
         print(cookieKey + " = " + cookies[cookieKey])
 
     return cookies
 
 """
-Returns discoved form inputs
+Returns discovered form inputs
 """
-
 def getFormInputs(session, url):
     foundInputs = list()
     html = session.get(url).text
@@ -114,10 +92,9 @@ def getFormInputs(session, url):
 
     return foundInputs
 
-
 def fuzz(userArgs):
     #validate input, init vars
-    numArgs = validateInput(userArgs)
+    numArgs = len(userArgs)
     if (numArgs != 0):
         customAuth = ""
         url = userArgs[-2]
@@ -128,25 +105,36 @@ def fuzz(userArgs):
             
     #session used in entire fuzzer        
     session = requests.session()
+    
     #discover
     guessedPages = []
     if (userArgs[2] == "discover"):
         if (customAuth != ""):
             authenticate(userArgs[4].split('=')[1], session)
+        
         guessedPages = guessPages(url, commonWords, session)
-        print("GUESSED PAGES: " + str(guessedPages) + "\n")
-        print("DISCOVERED LINKS: " + str(discoverLinks(url, session)))
-        print("DISCOVERED URL INPUTS" + str(parseURL(url)))
+        print("\nSUCCESSFUL PAGE GUESSES: \n------------------------------")
+        for page in guessedPages:
+            print(page)
+        
+        print("\nDISCOVERED LINKS: \n------------------------------")
+        for link in discoverLinks(url, session):
+            print(link)
+        
+        print("\nDISCOVERED URL INPUTS: \n------------------------------")
+        for input in parseURL(url):
+            print(input)
+        
+        print("\nSESSION COOKIES: \n------------------------------")
         getCookies(session)
-        print("DISCOVERED FORM INPUTS:")
+                   
+        print("\nDISCOVERED FORM INPUTS: \n------------------------------")
         for inputTag in getFormInputs(session, url):
             print(inputTag)
-
+    #test
     elif (userArgs[2] == "test"):
         pass #do test stuff
         
-
-
 
 if __name__ == "__main__":
     fuzz(sys.argv)
