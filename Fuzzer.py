@@ -37,7 +37,9 @@ def discoverLinks(url, session):
     for link in bs4.BeautifulSoup(html, "html.parser", parse_only = bs4.SoupStrainer('a')):
         if link.has_attr("href") and "hiderefer.com" not in link.get("href"):
             nLink = link.get("href")
-            if nLink.startswith(url) == False:
+            #if the link starts with the base url, http, or www than it is already an absolute path
+            #if it is a relative path append the base url to the beginning.
+            if (nLink.startswith(url) == False) and (nLink.startswith("http") == False) and (nLink.startswith("www.") == False):
                 if nLink.startswith("/") or  url.endswith("/"):
                     nLink = url + nLink
                 else:
