@@ -36,7 +36,13 @@ def discoverLinks(url, session):
     
     for link in bs4.BeautifulSoup(html, "html.parser", parse_only = bs4.SoupStrainer('a')):
         if link.has_attr("href"):
-            neighborLinks.append(link.get("href"))
+            nLink = link.get("href")
+            if nLink.startswith(url) == False:
+                if nLink.startswith("/") or  url.endswith("/"):
+                    nLink = url + nLink
+                else:
+                    nLink = url + "/" + nLink
+            neighborLinks.append(nLink)
     return neighborLinks
 
 """
@@ -57,14 +63,18 @@ def parseURL(url):
         plainUrl, inputs = url.split("?", 1)
         inputs = inputs.split("&")
     except ValueError:
-        print("BASE URL: " + url)
         return []
     discoveredInputs = list()
+    if len(inputs) > 0:
+        print("BASE URL: " + plainUrl)
     for field in inputs:
-        fieldName = field.split("=")[0]
-        discoveredInputs.append(fieldName)
+        if "=" in field:
+            #not an input unless it follows input=value pattern
+            fieldName = field.split("=")[0]
+            discoveredInputs.append(" - input field: " + fieldName)
+        else:
+            discoveredInputs.append(" - field found not an input: " + field)
 
-    print("BASE URL: " + plainUrl)
     return discoveredInputs
 
 """
@@ -87,7 +97,8 @@ def getFormInputs(session, url):
     inputLines = soup.prettify()
     for line in inputLines.splitlines(keepends=False):
         curLine = line.strip()
-        if curLine.startswith("<input"):
+        #check if it is an input opening tag that is not a submit button
+        if curLine.startswith("<input") and 'type="submit"' not in curLine:
             foundInputs.append(curLine)
 
     return foundInputs
@@ -118,19 +129,22 @@ def fuzz(userArgs):
             print(page)
         
         print("\nDISCOVERED LINKS: \n------------------------------")
-        for link in discoverLinks(url, session):
+        foundLinks = discoverLinks(url, session)
+        for link in foundLinks:
             print(link)
         
         print("\nDISCOVERED URL INPUTS: \n------------------------------")
-        for input in parseURL(url):
-            print(input)
+        for link in foundLinks:
+            for input in parseURL(link):
+                print(input)
         
         print("\nSESSION COOKIES: \n------------------------------")
         getCookies(session)
                    
         print("\nDISCOVERED FORM INPUTS: \n------------------------------")
-        for inputTag in getFormInputs(session, url):
-            print(inputTag)
+        for link in foundLinks:
+            for inputTag in getFormInputs(session, link):
+                print(inputTag)
     #test
     elif (userArgs[2] == "test"):
         pass #do test stuff
