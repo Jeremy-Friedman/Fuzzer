@@ -66,14 +66,16 @@ def parseURL(url):
         inputs = inputs.split("&")
     except ValueError:
         return []
-    discoveredInputs = list()
+    discoveredInputs = []
     if len(inputs) > 0:
         print("BASE URL: " + plainUrl)
     for field in inputs:
         if "=" in field:
             #not an input unless it follows input=value pattern
             fieldName = field.split("=")[0]
+            value = field.split("=")[1]
             discoveredInputs.append(" - input field: " + fieldName)
+            discoveredInputs.append(" - input value: " + value)
         else:
             discoveredInputs.append(" - field found not an input: " + field)
 
