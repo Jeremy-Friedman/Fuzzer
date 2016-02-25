@@ -35,7 +35,7 @@ def discoverLinks(url, session):
     html = session.get(url).text
     
     for link in bs4.BeautifulSoup(html, "html.parser", parse_only = bs4.SoupStrainer('a')):
-        if link.has_attr("href"):
+        if link.has_attr("href") and "hiderefer.com" not in link.get("href"):
             nLink = link.get("href")
             if nLink.startswith(url) == False:
                 if nLink.startswith("/") or  url.endswith("/"):
