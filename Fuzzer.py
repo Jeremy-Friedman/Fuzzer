@@ -1,6 +1,8 @@
 import bs4
 import requests
 import sys
+from SubmitForm import *
+from CheckVulnerability import *
 
 """
 Release 1 -- Discover
@@ -112,20 +114,35 @@ def fuzz(userArgs):
     numArgs = len(userArgs)
     if (numArgs != 0):
         customAuth = ""
-        url = userArgs[-2]
-        commonWords = userArgs[-1].split("=")[1]
-        if (numArgs == 6):
-            customAuth = userArgs[-2].split("=")[1]
-            url = userArgs[-3]
-            
+        url = userArgs[3]
+        commonWords = userArgs[4].split("=")[1]
+        slow = 500
+        if (numArgs >= 6):
+            customAuth = userArgs[4].split("=")[1]
+            commonWords = userArgs[5].split("=")[1]
+            #url = userArgs[-3]
+        if (numArgs >= 7):
+            vectors = userArgs[5].split("=")[1]
+            sensitive = userArgs[6].split("=")[1]
+            if (numArgs >= 8):
+                if "random" in userArgs[7]:
+                    rand = userArgs[7].split("=")[1]
+                elif "slow" in userArgs[7]:
+                    slow = userArgs[7].split("=")[1]
+                if(numArgs >= 9):
+                    if "random" in userArgs[8]:
+                        rand = userArgs[8].split("=")[1]
+                    elif "slow" in userArgs[8]:
+                        slow = userArgs[8].split("=")[1]
+                slow = int(slow)
+                rand = rand.lower()
     #session used in entire fuzzer        
     session = requests.session()
-    
+    if (customAuth != ""):
+            authenticate(userArgs[4].split('=')[1], session)
     #discover
     guessedPages = []
     if (userArgs[2] == "discover"):
-        if (customAuth != ""):
-            authenticate(userArgs[4].split('=')[1], session)
         
         guessedPages = guessPages(url, commonWords, session)
         print("\nSUCCESSFUL PAGE GUESSES: \n------------------------------")
@@ -151,7 +168,24 @@ def fuzz(userArgs):
                 print(inputTag)
     #test
     elif (userArgs[2] == "test"):
-        pass #do test stuff
+        print("\nFUZZING INPUT: \n------------------------------")
+        foundLinks = discoverLinks(url, session)
+        for link in foundLinks:
+            print("CHECKING URL: " + link)
+            for vector in open(vectors):
+                responses = submitForms(link, session, vector)
+                for response in responses:
+                    httpCheck = checkHTTPCode(response[0])
+                    if(httpCheck): print(httpCheck)
+                    dataCheck = checkDataLeak(response[0], sensitive)
+                    if(dataCheck): print(dataCheck)
+                    sanitizeCheck = checkInputSanitized(response[0], vector)
+                    if(sanitizeCheck): print(sanitizeCheck)
+                    if(response[1] > slow): print("Response delayed")
+
+
+
+
         
 
 if __name__ == "__main__":

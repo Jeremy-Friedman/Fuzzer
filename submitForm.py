@@ -26,13 +26,19 @@ def submitForms(url, session, value):
     soup = bs4.BeautifulSoup(html, "html.parser", parse_only = bs4.SoupStrainer("form"))
     responses = list()
     for form in soup:
-        method = form['method'].upper()
+        if form.get('method') == None:
+            method = "GET"
+        else:
+            method = form['method'].upper()
         submiturl = url[0 : url.rfind("/")] + "/" + form['action']
         parameters = setFormParams(form, value)
         start = time.time()
-        response = session.request(method=method,url=submiturl, params=parameters)
+        if method == "POST":
+            response = session.post(url=submiturl, data=parameters)
+        else:
+            response = session.request(method=method,url=submiturl, params=parameters)
         end = time.time()
-        responses.append(response)
+        responses.append([response, end - start])
     return responses
 
 '''
