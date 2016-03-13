@@ -1,6 +1,7 @@
 import bs4
 import requests
 import sys
+import random
 from submitForm import *
 from CheckVulnerability import *
 
@@ -18,7 +19,7 @@ def guessPages(url, commonWords, session):
     pages = []
     extensions = ["", ".php", ".jsp"]
     #result = ""
-    print("FAILED PAGE GUESSES: \n------------------------------")
+    #print("FAILED PAGE GUESSES: \n------------------------------")
     for word in open(commonWords):
         for extension in extensions:
             page = url + "/" + word.strip("\n") + extension
@@ -26,7 +27,7 @@ def guessPages(url, commonWords, session):
             if (request.status_code == requests.codes.ok):
                 pages.append(page)
             else:
-                print(page)
+                pass#print(page)
     return pages
 
 """
@@ -174,20 +175,22 @@ def fuzz(userArgs):
     #test
     elif (userArgs[1] == "test"):
         print("\nFUZZING INPUT: \n------------------------------")
-        foundLinks = discoverLinks(url, session)
+        if (rand == "true"): foundLinks = [random.choice(discoverLinks(url, session))]
+        else: foundLinks = discoverLinks(url, session)
         for link in foundLinks:
             print("CHECKING URL: " + link)
             for vector in open(vectors):
-                responses = submitForms(link, session, vector)
+                if (rand == "false"): responses = submitForms(link, session, vector)
+                else: responses = [(submitRandom(link, session, vector))]
                 for response in responses:
-                    httpCheck = checkHTTPCode(response[0])
-                    if(httpCheck): print(httpCheck)
-                    dataCheck = checkDataLeak(response[0], sensitive)
-                    if(dataCheck): print(dataCheck)
-                    sanitizeCheck = checkInputSanitized(response[0], vector)
-                    if(sanitizeCheck): print(sanitizeCheck)
-                    if(response[1] > slow): print("Response delayed")
-
+                    if (response): 
+                        httpCheck = checkHTTPCode(response[0])
+                        if(httpCheck): print(httpCheck)
+                        dataCheck = checkDataLeak(response[0], sensitive)
+                        if(dataCheck): print(dataCheck)
+                        sanitizeCheck = checkInputSanitized(response[0], vector)
+                        if(sanitizeCheck): print(sanitizeCheck)
+                        if(response[1] > slow): print("Response delayed")
 
 
 
@@ -195,4 +198,3 @@ def fuzz(userArgs):
 
 if __name__ == "__main__":
     fuzz(sys.argv)
-    
