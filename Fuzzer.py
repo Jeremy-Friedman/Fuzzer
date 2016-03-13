@@ -1,7 +1,7 @@
 import bs4
 import requests
 import sys
-from submitForm import *
+from SubmitForm import *
 from CheckVulnerability import *
 
 """
