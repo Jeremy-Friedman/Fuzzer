@@ -64,10 +64,20 @@ def submitRandom(url, session, value):
             if parent.name == 'form':
                 form = parent
                 break
-        if form:
+        if input:
             params[ranInput['name']] = value
-            submiturl = url[0 : url.rfind("/")] + "/" + form['action']
-            return session.request(method=form['method'].upper(),url=submiturl, params=params)
+            if input.get('action') == None:
+                submiturl = url
+            else:
+                submiturl = url[0 : url.rfind("/")] + "/" + input['action']
+            if input.get('method') == None:
+                method = "GET"
+            else:
+                method = input['method'].upper()
+            start = time.time()
+            response = session.request(method=method ,url=submiturl, params=params)
+            end = time.time()
+            return [response, end - start, params]
         else:
             return False
     else:
