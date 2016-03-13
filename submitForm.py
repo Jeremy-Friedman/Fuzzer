@@ -16,6 +16,8 @@ def setFormParams(formTag, value):
         if not input.get('name') == None:
             params[input['name']] = value
     return params
+
+
 '''
 Submits all the forms on the given page with
 the given parameters. HTTP Method is determined by
@@ -30,7 +32,11 @@ def submitForms(url, session, value):
             method = "GET"
         else:
             method = form['method'].upper()
-        submiturl = url[0 : url.rfind("/")] + "/" + form['action']
+
+        if form.get('action') == None:
+            submiturl = url
+        else:
+            submiturl = url[0 : url.rfind("/")] + "/" + form['action']
         parameters = setFormParams(form, value)
         start = time.time()
         if method == "POST":
@@ -38,7 +44,7 @@ def submitForms(url, session, value):
         else:
             response = session.request(method=method,url=submiturl, params=parameters)
         end = time.time()
-        responses.append([response, end - start])
+        responses.append([response, end - start, parameters])
     return responses
 
 '''

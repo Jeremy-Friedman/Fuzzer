@@ -2,7 +2,7 @@ import bs4
 import requests
 import sys
 import random
-from submitForm import *
+from SubmitForm import *
 from CheckVulnerability import *
 
 """
@@ -178,19 +178,22 @@ def fuzz(userArgs):
         if (rand == "true"): foundLinks = [random.choice(discoverLinks(url, session))]
         else: foundLinks = discoverLinks(url, session)
         for link in foundLinks:
-            print("CHECKING URL: " + link)
-            for vector in open(vectors):
+            print("\nTESTING FORMS AT " + link + ": \n------------------------------")
+            for v in open(vectors):
+                vector = v.strip()
                 if (rand == "false"): responses = submitForms(link, session, vector)
                 else: responses = [(submitRandom(link, session, vector))]
                 for response in responses:
                     if (response): 
                         httpCheck = checkHTTPCode(response[0])
-                        if(httpCheck): print(httpCheck)
                         dataCheck = checkDataLeak(response[0], sensitive)
-                        if(dataCheck): print(dataCheck)
                         sanitizeCheck = checkInputSanitized(response[0], vector)
-                        if(sanitizeCheck): print(sanitizeCheck)
-                        if(response[1] > slow): print("Response delayed")
+                        if httpCheck or dataCheck or sanitizeCheck or response[1] > slow:
+                            if httpCheck: print(httpCheck)
+                            if dataCheck: print(dataCheck)
+                            if sanitizeCheck: print(sanitizeCheck)
+                            if response[1] > slow: print("Response delayed: response delayed by " + str(response[1]) + "ms")
+                            print("Parameters submitted: " + str(response[2]) + "\n")
 
 
 
