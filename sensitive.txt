@@ -1,3 +1,5 @@
 MySql
-admin
 error
+server
+password=
+<script>
